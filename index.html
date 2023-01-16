@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Girl with a pearl earring</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="main.js" defer></script>
+  </head>
+  <body>
+    <div id="instructions">
+      <section>
+        <p>Draw an image</p>
+        <p>Draw a grid</p>
+        <p>Get the brightness of every cell</p>
+        <p>Draw particles moving from left to right</p>
+        <p>
+          Update each particle's speed based on the brightness (relative
+          brightness) of its position
+        </p>
+        <p>Fade each particle based on its speed</p>
+        <p>
+          Do not clear your scene on each frame, to let the particles fade out
+        </p>
+      </section>
+      <div id="slider_container">
+        <input
+          id="slider"
+          type="range"
+          min="1"
+          max="7"
+          step="1"
+          id="step"
+          value="1"
+        />
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+  </body>
+</html>
