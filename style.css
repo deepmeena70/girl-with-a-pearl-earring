@@ -60,7 +60,13 @@ body {
   font-size: 1.95em;
   text-align: center;
   position: fixed;
-  top: 3%;
+  top: 5%;
+}
+#instructions section p {
+  padding: 3px 24px 6px 24px;
+  text-align: center;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
 }
 #instructions .active {
   display: inline;
