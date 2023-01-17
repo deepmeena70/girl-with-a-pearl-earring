@@ -1,14 +1,17 @@
 (function () {
   console.log('script is running...');
+
   const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
+  const ctx = canvas.getContext('2d'); // get 2d context of canvas
+  const img = new Image(); // an image object
   const canvas_zoom = 1.5;
   const img_width = 380;
   const img_height = 445;
 
-  let particles = [];
-  let mappedImage = [];
+  let particles = []; // Array of particles
+  let mappedImage = []; // Array of brighten cell
+
+  // animation references
   let raf;
   let raf_2;
   let raf_3;
@@ -45,10 +48,13 @@
     }
   };
 
-  img.src = 'Meisje_met_de_parel.jpg';
-  img.onload = () => {
-    ctx.globalAlpha = 1;
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  // image preloader
+  const img_preload = () => {
+    img.src = 'Meisje_met_de_parel.jpg';
+    img.onload = () => {
+      ctx.globalAlpha = 1;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
   };
 
   const draw_img = () => {
@@ -84,8 +90,8 @@
   };
 
   // paragraph activator
-  const paras = document.querySelectorAll('p');
   const set_para_active = (step) => {
+    const paras = document.querySelectorAll('p');
     paras.forEach((para) => para.removeAttribute('class', 'active'));
     paras[step - 1].setAttribute('class', 'active');
   };
@@ -95,15 +101,13 @@
       this.x = 0;
       this.y = Math.random() * canvas.height;
       this.speed = 0;
-      this.velocity = Math.random() * 4;
+      this.velocity = Math.random() * 4.5;
       this.size = Math.random() * 1.5 + 2;
       this.position1 = Math.floor(this.y);
       this.position2 = Math.floor(this.x);
     }
 
     update() {
-      this.position1 = Math.floor(this.y);
-      this.position2 = Math.floor(this.x);
       this.speed = 1;
       let movement = 1.5 - this.speed + this.velocity;
       this.x += movement;
@@ -137,6 +141,7 @@
     }
   };
 
+  // image mapper
   const img_mapper = () => {
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
     for (let y = 0; y < canvas.height; y++) {
@@ -154,6 +159,7 @@
     console.log(mappedImage);
   };
 
+  // first animator
   const animate = () => {
     clearCanvas();
     ctx.globalAlpha = 1;
@@ -167,6 +173,7 @@
     raf = requestAnimationFrame(animate);
   };
 
+  // second animator
   const animate_2 = () => {
     draw_img();
     ctx.globalAlpha = 1;
@@ -178,6 +185,8 @@
     });
     raf_2 = requestAnimationFrame(animate_2);
   };
+
+  // third animator
   const animate_3 = () => {
     draw_img();
     clearCanvas();
@@ -189,6 +198,8 @@
     });
     raf_3 = requestAnimationFrame(animate_3);
   };
+
+  // fourth animator
   const animate_4 = () => {
     ctx.globalAlpha = 0.05;
     ctx.fillStyle = 'rgb(0,0,0)';
@@ -207,12 +218,21 @@
   const step_1 = () => {
     console.log('step_1 is running');
     set_para_active(1);
+    img_preload();
+    cancelAnimationFrame(raf);
+    cancelAnimationFrame(raf_2);
+    cancelAnimationFrame(raf_3);
+    cancelAnimationFrame(raf_4);
     clearCanvas();
     draw_img();
   };
   const step_2 = () => {
     console.log('step_2 is running');
     set_para_active(2);
+    cancelAnimationFrame(raf);
+    cancelAnimationFrame(raf_2);
+    cancelAnimationFrame(raf_3);
+    cancelAnimationFrame(raf_4);
     clearCanvas();
     draw_img();
     draw_grid();
@@ -221,6 +241,9 @@
     console.log('step_3 is running');
     set_para_active(3);
     cancelAnimationFrame(raf);
+    cancelAnimationFrame(raf_2);
+    cancelAnimationFrame(raf_3);
+    cancelAnimationFrame(raf_4);
     no_particles();
     clearCanvas();
     draw_img();
@@ -230,6 +253,8 @@
     console.log('step_4 is running');
     set_para_active(4);
     cancelAnimationFrame(raf_2);
+    cancelAnimationFrame(raf_3);
+    cancelAnimationFrame(raf_4);
     clearCanvas();
     fill_particles(400);
     console.log(particles.length);
@@ -240,6 +265,7 @@
     set_para_active(5);
     cancelAnimationFrame(raf);
     cancelAnimationFrame(raf_3);
+    cancelAnimationFrame(raf_4);
     no_particles();
     fill_particles(2000);
     draw_img();
@@ -250,8 +276,9 @@
     console.log('step_6 is running');
     set_para_active(6);
     clearCanvas();
-    cancelAnimationFrame(raf_4);
+    cancelAnimationFrame(raf);
     cancelAnimationFrame(raf_2);
+    cancelAnimationFrame(raf_4);
     no_particles();
     fill_particles(3000);
     draw_img();
@@ -262,6 +289,8 @@
     console.log('step_7 is running');
     set_para_active(7);
     clearCanvas();
+    cancelAnimationFrame(raf);
+    cancelAnimationFrame(raf_2);
     cancelAnimationFrame(raf_3);
     no_particles();
     fill_particles(1000);
