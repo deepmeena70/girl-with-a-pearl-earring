@@ -11,6 +11,8 @@
   let mappedImage = [];
   let raf;
   let raf_2;
+  let raf_3;
+  let raf_4;
 
   canvas.width = img_width * canvas_zoom;
   canvas.height = img_height * canvas_zoom;
@@ -61,6 +63,10 @@
     );
   };
 
+  const cal_rel_brightness_2 = (r, g, b) => {
+    return Math.sqrt(r * r * 0.299 + g * g * 0.587 + b * b * 0.114) / 100;
+  };
+
   const get_pixels_brightness = () => {
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
     for (let y = 0; y < canvas.height; y += cellSize) {
@@ -82,6 +88,119 @@
   const set_para_active = (step) => {
     paras.forEach((para) => para.removeAttribute('class', 'active'));
     paras[step - 1].setAttribute('class', 'active');
+  };
+
+  class Particle {
+    constructor() {
+      this.x = 0;
+      this.y = Math.random() * canvas.height;
+      this.speed = 0;
+      this.velocity = Math.random() * 4;
+      this.size = Math.random() * 1.5 + 2;
+      this.position1 = Math.floor(this.y);
+      this.position2 = Math.floor(this.x);
+    }
+
+    update() {
+      this.position1 = Math.floor(this.y);
+      this.position2 = Math.floor(this.x);
+      this.speed = 1;
+      let movement = 1.5 - this.speed + this.velocity;
+      this.x += movement;
+      if (this.x >= canvas.width) {
+        this.x = 0;
+        this.y = Math.random() * canvas.height;
+      }
+    }
+    update_2() {
+      this.position1 = Math.floor(this.y);
+      this.position2 = Math.floor(this.x);
+      this.speed = mappedImage[this.position1][this.position2][0];
+      let movement = 1.2 - this.speed + this.velocity;
+      this.x += movement;
+      if (this.x >= canvas.width) {
+        this.x = 0;
+        this.y = Math.random() * canvas.height;
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.fillStyle = 'white';
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const fill_particles = (numberOfParticles) => {
+    for (let i = 0; i < numberOfParticles; i++) {
+      particles.push(new Particle());
+    }
+  };
+
+  const img_mapper = () => {
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < canvas.height; y++) {
+      let row = [];
+      for (let x = 0; x < canvas.width; x++) {
+        const r = pixels.data[y * 4 * pixels.width + x * 4];
+        const g = pixels.data[y * 4 * pixels.width + (x * 4 + 1)];
+        const b = pixels.data[y * 4 * pixels.width + (x * 4 + 2)];
+        const brightness = cal_rel_brightness_2(r, g, b);
+        const cell = [brightness];
+        row.push(cell);
+      }
+      mappedImage.push(row);
+    }
+    console.log(mappedImage);
+  };
+
+  const animate = () => {
+    clearCanvas();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgb(1,1,1)';
+    particles.forEach((particle) => {
+      console.log('animating...');
+      particle.update();
+      ctx.globalAlpha = particle.speed;
+      particle.draw();
+    });
+    raf = requestAnimationFrame(animate);
+  };
+
+  const animate_2 = () => {
+    draw_img();
+    ctx.globalAlpha = 1;
+    clearCanvas();
+    particles.forEach((particle) => {
+      console.log('animating...');
+      particle.update_2();
+      particle.draw();
+    });
+    raf_2 = requestAnimationFrame(animate_2);
+  };
+  const animate_3 = () => {
+    draw_img();
+    clearCanvas();
+    particles.forEach((particle) => {
+      console.log('animating...');
+      particle.update_2();
+      ctx.globalAlpha = particle.speed;
+      particle.draw();
+    });
+    raf_3 = requestAnimationFrame(animate_3);
+  };
+  const animate_4 = () => {
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = 'rgb(0,0,0)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 0.5;
+    particles.forEach((particle) => {
+      console.log('animating...');
+      particle.update_2();
+      ctx.globalAlpha = particle.speed * 0.5;
+      particle.draw();
+    });
+    raf_4 = requestAnimationFrame(animate_4);
   };
 
   // steps
@@ -107,112 +226,48 @@
     draw_img();
     get_pixels_brightness();
   };
-
-  class Particle {
-    constructor() {
-      this.x = 0;
-      this.y = Math.random() * canvas.height;
-      this.speed = 3;
-      this.velocity = Math.random() * 4;
-      this.size = Math.random() * 1.5 + 1;
-      this.position1 = Math.floor(this.y);
-      this.position2 = Math.floor(this.x);
-    }
-
-    update(speed) {
-      this.position1 = Math.floor(this.y);
-      this.position2 = Math.floor(this.x);
-      this.speed = speed;
-      let movement = 1.5 - this.speed + this.velocity;
-      this.x += movement;
-      if (this.x >= canvas.width) {
-        this.x = 0;
-        this.y = Math.random() * canvas.height;
-      }
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.fillStyle = 'white';
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  const fill_particles = (numberOfParticles) => {
-    for (let i = 0; i < numberOfParticles; i++) {
-      particles.push(new Particle());
-    }
-  };
-
-  const animate = () => {
-    clearCanvas();
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = 'rgb(1,1,1)';
-    particles.forEach((particle) => {
-      console.log('animating...');
-      particle.update(1);
-      ctx.globalAlpha = particle.speed;
-      particle.draw();
-    });
-    raf = requestAnimationFrame(animate);
-  };
-
   const step_4 = () => {
     console.log('step_4 is running');
     set_para_active(4);
+    cancelAnimationFrame(raf_2);
     clearCanvas();
-    fill_particles(200);
+    fill_particles(400);
     console.log(particles.length);
     animate();
   };
-
-  const animate_2 = () => {
-    draw_img();
-    ctx.globalAlpha = 0.01;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'rgb(1,1,1)';
-    particles.forEach((particle) => {
-      console.log('animating...');
-      particle.update(mappedImage[this.position1][this.position2][0]);
-      ctx.globalAlpha = particle.speed;
-      particle.draw();
-    });
-    raf_2 = requestAnimationFrame(animate_2);
-  };
-
-  const img_mapper = () => {
-    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    for (let y = 0; y < canvas.height; y++) {
-      let row = [];
-      for (let x = 0; x < canvas.width; x++) {
-        const r = pixels.data[y * 4 * pixels.width + x * 4];
-        const g = pixels.data[y * 4 * pixels.width + (x * 4 + 1)];
-        const b = pixels.data[y * 4 * pixels.width + (x * 4 + 2)];
-        const brightness = cal_rel_brightness(r, g, b);
-        const cell = [brightness];
-        row.push(cell);
-      }
-      mappedImage.push(row);
-    }
-    console.log(mappedImage);
-  };
-
   const step_5 = () => {
     console.log('step_5 is running');
     set_para_active(5);
-    no_particles();
     cancelAnimationFrame(raf);
-    fill_particles(200);
+    cancelAnimationFrame(raf_3);
+    no_particles();
+    fill_particles(2000);
+    draw_img();
     img_mapper();
     animate_2();
   };
   const step_6 = () => {
     console.log('step_6 is running');
     set_para_active(6);
+    clearCanvas();
+    cancelAnimationFrame(raf_4);
+    cancelAnimationFrame(raf_2);
+    no_particles();
+    fill_particles(3000);
+    draw_img();
+    img_mapper();
+    animate_3();
   };
   const step_7 = () => {
     console.log('step_7 is running');
     set_para_active(7);
+    clearCanvas();
+    cancelAnimationFrame(raf_3);
+    no_particles();
+    fill_particles(1000);
+    draw_img();
+    img_mapper();
+    animate_4();
   };
 
   // slider working
